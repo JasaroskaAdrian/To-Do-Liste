@@ -19,10 +19,10 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data.id) {
             window.location.href = '../html/login.html';
         } else {
-            messageElement.innerText = data.message;
+            messageElement.innerText = data.error || 'Registration failed';
         }
     })
     .catch(error => {
