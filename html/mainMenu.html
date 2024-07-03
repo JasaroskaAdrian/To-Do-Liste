@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-white text-xl font-bold">Texo</h1>
+            <button id="createProductButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Product</button>
+        </div>
+    </nav>
+    <div class="container mx-auto mt-10">
+        <ul id="ProductList" class="bg-white shadow-md rounded p-4">
+            <!-- Task items will be added here dynamically -->
+        </ul>
+    </div>
+
+    <script src="../javascripts/mainMenu.js"></script>
+</body>
+</html>
