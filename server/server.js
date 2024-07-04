@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-// From online-shop-api Repo
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
@@ -10,13 +9,11 @@ const swaggerDocument = require('./swagger.json');
 
 const app = express();
 app.use(express.json());
-// Serve static files from the 'html' directory
 app.use(express.static(path.join(__dirname, '../html')));
 
 const PORT = 3000;
 const SECRET_KEY = 'your_secret_key';
 
-// DB setup
 let db = new sqlite3.Database('./database.sqlite', (err) => {
     if (err) {
         console.error('Could not connect to database', err);
@@ -51,14 +48,15 @@ function authorizeAdmin(req, res, next) {
     next();
 }
 
-// Serve the mainMenu page
+// Serve HTML file
 app.get('/products', (req, res) => {
-  res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
+    res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
 });
+
 // CRUD Operations
 
 // Create - Produkt erstellen
-app.post('/products', authenticateToken, authorizeAdmin, (req, res) => {
+app.post('/api/products', authenticateToken, authorizeAdmin, (req, res) => {
     const { name, price, categoryId, image } = req.body;
     db.run("INSERT INTO products (name, price, categoryId, image) VALUES (?, ?, ?, ?)", [name, price, categoryId, image], function (err) {
         if (err) {
@@ -70,7 +68,7 @@ app.post('/products', authenticateToken, authorizeAdmin, (req, res) => {
 });
 
 // Read - Alle Produkte lesen
-app.get('/products', (req, res) => {
+app.get('/api/products', authenticateToken, (req, res) => {
     db.all("SELECT * FROM products", (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -81,7 +79,7 @@ app.get('/products', (req, res) => {
 });
 
 // Read - Einzelnes Produkt per ID lesen
-app.get('/products/:id', (req, res) => {
+app.get('/api/products/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
     db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
         if (err) {
@@ -93,7 +91,7 @@ app.get('/products/:id', (req, res) => {
 });
 
 // Update - Produkt aktualisieren
-app.put('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
+app.put('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     const { id } = req.params;
     const { name, price, categoryId, image } = req.body;
     db.run("UPDATE products SET name = ?, price = ?, categoryId = ?, image = ? WHERE id = ?", [name, price, categoryId, image, id], function (err) {
@@ -106,7 +104,7 @@ app.put('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
 });
 
 // Delete - Produkt löschen
-app.delete('/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
+app.delete('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     const { id } = req.params;
     db.run("DELETE FROM products WHERE id = ?", [id], function (err) {
         if (err) {
@@ -139,21 +137,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-/*   !!MUSS NOCH IMPLEMENTIERT WERDEN
-// Route zum Zurücksetzen des Passworts
-app.post('/reset-password', authenticateToken, (req, res) => {
-    const { username, newPassword } = req.body;
-    const hashedPassword = bcrypt.hashSync(newPassword, 10);
-    db.run("UPDATE users SET password = ? WHERE username = ?", [hashedPassword, username], function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ message: 'Password reset successfully' });
-    });
-  });
-*/
-
 // Serve the Registration Page
 app.get('/registration', (req, res) => {
     res.sendFile(path.join(__dirname, '../html', 'registrieren.html'));
@@ -172,88 +155,13 @@ app.post('/registration', (req, res) => {
     });
 });
 
-
+// Serve the mainMenu page
+app.get('/products/main', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
+});
 
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-/* !!MUSS NOCH IMPLEMENTIERT WERDEN
-// Routes for categories (public)
-app.get('/categories', (req, res) => {
-    db.all("SELECT * FROM categories", (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json(rows);
-    });
-  });
-*/
-
-/* //DIENT UM KATEGORIEN ZU ERSTELLEN
-app.post('/categories', authenticateToken, authorizeAdmin, (req, res) => {
-    const { name } = req.body;
-    db.run("INSERT INTO categories (name) VALUES (?)", [name], function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.status(201).json({ id: this.lastID, name });
-    });
-  });
-*/
-
-/* DIENT ZUR AUSWAHL VON GEWISSE KATEGORIEN
-app.get('/categories/:id', (req, res) => {
-    const { id } = req.params;
-    db.get("SELECT * FROM categories WHERE id = ?", [id], (err, row) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json(row || { message: 'Category not found' });
-    });
-  });
-*/
-
-/* DIENT ZUR BEARBEITEN DER KATEGORIEN
-app.put('/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
-    const { id } = req.params;
-    const { name } = req.body;
-    db.run("UPDATE categories SET name = ? WHERE id = ?", [name, id], function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ id, name });
-    });
-  });
-*/
-
-/* DIENT ZUR LÖSCHEN VON KATEGORIEN
-app.delete('/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
-    const { id } = req.params;
-    db.run("DELETE FROM categories WHERE id = ?", [id], function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ message: 'Category deleted' });
-    });
-  });
-*/
-
-/* //DIENT ZUR AUFLISTUNG ALLER PRODUKTE
-app.get('/products', (req, res) => {
-    db.all("SELECT * FROM products", (err, rows) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json(rows);
-    });
-  });
-*/
 
 // Serve the edit page
 app.get('/products/:id/edit', (req, res) => {
