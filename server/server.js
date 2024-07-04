@@ -10,6 +10,8 @@ const swaggerDocument = require('./swagger.json');
 
 const app = express();
 app.use(express.json());
+// Serve static files from the 'html' directory
+app.use(express.static(path.join(__dirname, '../html')));
 
 const PORT = 3000;
 const SECRET_KEY = 'your_secret_key';
@@ -117,7 +119,7 @@ app.get('/', (req, res) => {
 });
 
 // Route zur Anmeldung
-app.post('/', (req, res) => {
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
     db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
         if (err) {
