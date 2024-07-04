@@ -23,22 +23,21 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-white text-xl font-bold">Texo</h1>
             <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="logout()">Logout</button>
-            <a href="/categories" class="bg-blue-500 text-white px-4 py-2 rounded">Category Manager</a>
-            <button id="createProductButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Product</button>
+            <a href="/products" class="bg-blue-500 text-white px-4 py-2 rounded">Product Manager</a>
+            <button id="createCategoryButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Category</button>
         </div>
     </nav>
     <div class="container mx-auto mt-10">
-        <ul id="ProductList" class="bg-white shadow-md rounded p-4">
+        <ul id="CategoryList" class="bg-white shadow-md rounded p-4">
             <!-- Product items will be added here dynamically -->
         </ul>
     </div>
-
     <script type="application/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            const ProductList = document.getElementById('ProductList');
+            const CategoryList = document.getElementById('CategoryList');
 
-            const fetchProducts = () => {
-                fetch('/api/products', {
+            const fetchCategory = () => {
+                fetch('/api/categories', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -54,43 +53,40 @@
                         throw new Error('Unexpected response type or empty response');
                     }
                 })
-                .then(products => {
-                    ProductList.innerHTML = ''; // Clear previous list items
-                    products.forEach(product => {
+                .then(categories => {
+                    CategoryList.innerHTML = ''; // Clear previous list items
+                    categories.forEach(category => {
                         const li = document.createElement('li');
                         li.className = 'flex justify-between items-center border-b py-2';
                         li.innerHTML = `
                             <div>
-                                <span class="text-gray-600">ID: ${product.id}</span>
-                                <span class="text-blue-500 ml-4">${product.name || 'Untitled Product'}</span>
+                                <span class="text-gray-600">ID: ${category.id}</span>
+                                <span class="text-blue-500 ml-4">${category.name || 'Untitled Category'}</span>
                             </div>
                             <div>
-                                <a href="/products/${product.id}/show" class="bg-green-500 text-white px-4 py-2 rounded">Show</a>
-                                <a href="/products/${product.id}/edit" class="bg-yellow-500 text-white px-4 py-2 rounded ml-2">Edit</a>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded ml-2" onclick="deleteProduct(${product.id})">Delete</button>
+                                <a href="/categories/${category.id}/show" class="bg-green-500 text-white px-4 py-2 rounded">Show</a>
+                                <a href="/categories/${category.id}/edit" class="bg-yellow-500 text-white px-4 py-2 rounded ml-2">Edit</a>
+                                <button class="bg-red-500 text-white px-4 py-2 rounded ml-2" onclick="deleteCategory(${category.id})">Delete</button>
                             </div>
                         `;
-                        ProductList.appendChild(li);
+                        CategoryList.appendChild(li);
                     });
                 })
                 .catch(error => {
-                    console.error('Error fetching products:', error);
-                    ProductList.innerHTML = '<p>Error fetching products. Please try again later.</p>';
+                    console.error('Error fetching categories:', error);
+                    CategoryList.innerHTML = '<p>Error fetching categories. Please try again later.</p>';
                 });
             };
 
-            document.getElementById('createProductButton').addEventListener('click', () => {
-                fetch('/api/products', {
+            document.getElementById('createCategoryButton').addEventListener('click', () => {
+                fetch('/api/categories', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        name: 'New Product', // Example data
-                        price: 0,
-                        categoryId: 1,
-                        image: ''
+                        name: 'New Category', // Example data
                     })
                 })
                 .then(response => {
@@ -100,15 +96,15 @@
                     return response.json();
                 })
                 .then(() => {
-                    fetchProducts(); // Refresh product list after creating a new product
+                    fetchCategory(); // Refresh product list after creating a new product
                 })
                 .catch(error => {
-                    console.error('Error creating product:', error);
+                    console.error('Error creating category:', error);
                 });
             });
 
-            window.deleteProduct = (productId) => {
-                fetch(`/api/products/${productId}`, {
+            window.deleteCategory = (categoriesid) => {
+                fetch(`/api/categories/${categoriesid}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -118,14 +114,13 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    fetchProducts(); // Refresh product list after deleting a product
+                    fetchCategory(); // Refresh product list after deleting a product
                 })
                 .catch(error => {
-                    console.error('Error deleting product:', error);
+                    console.error('Error deleting category:', error);
                 });
             };
-
-            fetchProducts(); // Initial fetch to load products on page load
+            fetchCategory(); // Initial fetch to load products on page load
         });
     </script>
 </body>

@@ -48,14 +48,8 @@ function authorizeAdmin(req, res, next) {
     next();
 }
 
-// Serve HTML file
-app.get('/products', (req, res) => {
-    res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
-});
-
-// CRUD Operations
-
-// Create - Produkt erstellen
+// CRUD Operations for Product Management
+// Create - Create a product
 app.post('/api/products', authenticateToken, authorizeAdmin, (req, res) => {
     const { name, price, categoryId, image } = req.body;
     db.run("INSERT INTO products (name, price, categoryId, image) VALUES (?, ?, ?, ?)", [name, price, categoryId, image], function (err) {
@@ -67,7 +61,7 @@ app.post('/api/products', authenticateToken, authorizeAdmin, (req, res) => {
     });
 });
 
-// Read - Alle Produkte lesen
+// Read - Get all products
 app.get('/api/products', authenticateToken, (req, res) => {
     db.all("SELECT * FROM products", (err, rows) => {
         if (err) {
@@ -78,7 +72,7 @@ app.get('/api/products', authenticateToken, (req, res) => {
     });
 });
 
-// Read - Einzelnes Produkt per ID lesen
+// Read - Get a single product by ID
 app.get('/api/products/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
     db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
@@ -90,12 +84,17 @@ app.get('/api/products/:id', authenticateToken, (req, res) => {
     });
 });
 
-// Update - Produkt aktualisieren
+// Update - Update a product
 app.put('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     const { id } = req.params;
     const { name, price, categoryId, image } = req.body;
+
+    console.log('Updating product:', id);
+    console.log('Received data:', { name, price, categoryId, image });
+
     db.run("UPDATE products SET name = ?, price = ?, categoryId = ?, image = ? WHERE id = ?", [name, price, categoryId, image, id], function (err) {
         if (err) {
+            console.error('Error updating product:', err.message);
             res.status(500).json({ error: err.message });
             return;
         }
@@ -103,7 +102,7 @@ app.put('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     });
 });
 
-// Delete - Produkt löschen
+// Delete - Delete a product
 app.delete('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     const { id } = req.params;
     db.run("DELETE FROM products WHERE id = ?", [id], function (err) {
@@ -115,12 +114,74 @@ app.delete('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) =>
     });
 });
 
-// Serve the Login Page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../html', 'login.html'));
+// CRUD Operations for Category Management
+// Create - Create a category
+app.post('/api/categories', authenticateToken, authorizeAdmin, (req, res) => {
+    const { name } = req.body;
+    db.run("INSERT INTO categories (name) VALUES (?)", [name], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.status(201).json({ id: this.lastID, name });
+    });
 });
 
-// Route zur Anmeldung
+// Read - Get all categories
+app.get('/api/categories', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM categories", (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(rows);
+    });
+});
+
+// Read - Get a single category by ID
+app.get('/api/categories/:id', authenticateToken, (req, res) => {
+    const { id } = req.params;
+    db.get("SELECT * FROM categories WHERE id = ?", [id], (err, row) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json(row || { message: 'Category not found' });
+    });
+});
+
+// Update - Update a category
+app.put('/api/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    console.log('Updating category:', id);
+    console.log('Received data:', { name });
+
+    db.run("UPDATE categories SET name = ? WHERE id = ?", [name, id], function (err) {
+        if (err) {
+            console.error('Error updating category:', err.message);
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ id, name });
+    });
+});
+
+// Delete - Delete a category
+app.delete('/api/categories/:id', authenticateToken, authorizeAdmin, (req, res) => {
+    const { id } = req.params;
+    db.run("DELETE FROM categories WHERE id = ?", [id], function (err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: 'Category deleted' });
+    });
+});
+
+// Login & Registration
+// Route for login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
@@ -137,12 +198,7 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Serve the Registration Page
-app.get('/registration', (req, res) => {
-    res.sendFile(path.join(__dirname, '../html', 'registrieren.html'));
-});
-
-// Route zur Registrierung
+// Route for registration
 app.post('/registration', (req, res) => {
     const { username, password, role = 'user' } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -155,13 +211,21 @@ app.post('/registration', (req, res) => {
     });
 });
 
+// Serve all Pages
 // Serve the mainMenu page
 app.get('/products', (req, res) => {
     res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
 });
 
-// Swagger setup
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Serve the Login Page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'login.html'));
+});
+
+// Serve the Registration Page
+app.get('/registration', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'registrieren.html'));
+});
 
 // Serve the edit page
 app.get('/products/:id/edit', (req, res) => {
@@ -173,6 +237,25 @@ app.get('/products/:id/show', (req, res) => {
     res.sendFile(path.join(__dirname, '../html', 'show.html'));
 });
 
+// Serve the create category page
+app.get('/categories', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'createCategory.html'));
+});
+
+// Serve the edit category page
+app.get('/categories/:id/edit', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'editCategory.html'));
+});
+
+// Serve the show category page
+app.get('/categories/:id/show', (req, res) => {
+    res.sendFile(path.join(__dirname, '../html', 'showCategory.html'));
+});
+
+// Swagger setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Server Base URL
 // Indication that the Server is running, also shows the URL on which it is running
 app.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT}`);

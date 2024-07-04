@@ -3,23 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Show Task</title>
+    <title>Show Product</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-gray-800 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-white text-xl font-bold">TODO</h1>
-            <a href="/" class="bg-blue-500 text-white px-4 py-2 rounded">Back to Tasks</a>
-        </div>
-    </nav>
     <div class="container mx-auto mt-10">
-        <h1 class="text-2xl font-bold mb-4">Task Details</h1>
-        <div id="taskDetails" class="bg-white shadow-md rounded p-4">
-            <!-- Task details will be added here dynamically -->
+        <h1 class="text-2xl font-bold mb-4">Product Details</h1>
+        <div id="productDetails" class="bg-white shadow-md rounded p-4">
+            <!-- Product details will be injected here -->
         </div>
+        <button onclick="location.href='/products'" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Back to Products
+        </button>
     </div>
+    <script type="application/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const productId = window.location.pathname.split('/').slice(-2)[0];
+            const token = localStorage.getItem('token');
 
-    <script src="../javascripts/show.js" type="application/javascript"></script>
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+
+            fetch(`/api/products/${productId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(product => {
+                if (product) {
+                    fetch(`/api/categories/${product.categoryId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(category => {
+                        const categoryName = category && category.name ? category.name : 'Category not found';
+                        const productDetails = document.getElementById('productDetails');
+                        productDetails.innerHTML = `
+                            <p><strong>ID:</strong> ${product.id}</p>
+                            <p><strong>Name:</strong> ${product.name}</p>
+                            <p><strong>Price:</strong> ${product.price}</p>
+                            <p><strong>Category:</strong> ${categoryName}</p>
+                            <p><strong>Image:</strong></p>
+                            <img src="${product.image}" alt="No Picture here" class="max-w-xs">
+                        `;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching category:', error);
+                    });
+                } else {
+                    alert('Product not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching product:', error);
+            });
+        });
+    </script>
 </body>
 </html>
