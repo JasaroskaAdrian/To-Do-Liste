@@ -156,7 +156,7 @@ app.post('/registration', (req, res) => {
 });
 
 // Serve the mainMenu page
-app.get('/products/main', (req, res) => {
+app.get('/products', (req, res) => {
     res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
 });
 

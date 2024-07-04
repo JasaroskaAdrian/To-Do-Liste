@@ -13,12 +13,18 @@
                 'Content-Type': 'application/json'
             }
         })
+        function logout() {
+                localStorage.removeItem('token');
+                window.location.href = '/'
+            }
     </script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-gray-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-white text-xl font-bold">Texo</h1>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="logout()">Logout</button>
+
             <button id="createProductButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Product</button>
         </div>
     </nav>
@@ -68,7 +74,7 @@
                     console.error('Error fetching products:', error);
                 });
             };
-
+            
             document.getElementById('createProductButton').addEventListener('click', () => {
                 fetch('/products', {
                     method: 'POST',
