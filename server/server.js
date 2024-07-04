@@ -51,6 +51,10 @@ function authorizeAdmin(req, res, next) {
     next();
 }
 
+// Serve the mainMenu page
+app.get('/products', (req, res) => {
+  res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
+});
 // CRUD Operations
 
 // Create - Produkt erstellen
@@ -168,10 +172,7 @@ app.post('/registration', (req, res) => {
     });
 });
 
-// Serve the mainMenu page
-app.get('/products/main', (req, res) => {
-    res.sendFile(path.join(__dirname, '../html', 'mainMenu.html'));
-});
+
 
 // Swagger setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
