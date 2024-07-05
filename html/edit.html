@@ -37,7 +37,12 @@
             const productId = window.location.pathname.split('/').slice(-2)[0];
             // Hole das gespeicherte Token aus dem lokalen Speicher
             const token = localStorage.getItem('token');
-
+            
+        //https://github.com/BitSparkCode/online-shop-api 
+        //https://github.com/BitSparkCode/CRUD 
+        //https://github.com/BitSparkCode/Simple-JWT
+        //https://openai.com/chatgpt/
+        //Obige Links wurden verwendet um dieses Projekt zu Erledigen. Natürlich gab es leichte Anpassungen von mir
             // Wenn kein Token vorhanden ist, gehe zur Startseite
             if (!token) {
                 window.location.href = '/';

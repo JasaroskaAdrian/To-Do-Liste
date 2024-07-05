@@ -7,9 +7,13 @@ const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-// Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
-// https://github.com/BitSparkCode/Simple-JWT-Auth
 
+        //https://github.com/BitSparkCode/online-shop-api 
+        //https://github.com/BitSparkCode/CRUD 
+        //https://github.com/BitSparkCode/Simple-JWT
+        //https://openai.com/chatgpt/
+        //Obige Links wurden verwendet um dieses Projekt zu Erledigen. Natürlich gab es leichte Anpassungen von mir
+        
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../html')));
