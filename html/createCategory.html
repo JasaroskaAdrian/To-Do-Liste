@@ -6,15 +6,18 @@
     <title>Product Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
+        // Holen Sie sich das gespeicherte Token aus dem lokalen Speicher
         const token = localStorage.getItem('token');
-//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
+
+        // Funktion zum Abmelden und Weiterleiten zur Startseite
         function logout() {
             localStorage.removeItem('token');
             window.location.href = '/';
         }
 
+        // Funktion zum Wechseln der Kategorie (noch nicht implementiert)
         function category() {
-            window.location.href = ''
+            window.location.href = '';
         }
     </script>
 </head>
@@ -22,20 +25,24 @@
     <nav class="bg-gray-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-white text-xl font-bold">Texo</h1>
+            <!-- Logout-Button -->
             <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="logout()">Logout</button>
+            <!-- Link zum Product Manager -->
             <a href="/products" class="bg-blue-500 text-white px-4 py-2 rounded">Product Manager</a>
+            <!-- Button zum Erstellen einer neuen Kategorie -->
             <button id="createCategoryButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Category</button>
         </div>
     </nav>
     <div class="container mx-auto mt-10">
         <ul id="CategoryList" class="bg-white shadow-md rounded p-4">
-            <!-- Product items will be added here dynamically -->
+            <!-- Kategorien werden hier dynamisch hinzugefügt -->
         </ul>
     </div>
     <script type="application/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const CategoryList = document.getElementById('CategoryList');
 
+            // Funktion zum Abrufen der Kategorien vom Server
             const fetchCategory = () => {
                 fetch('/api/categories', {
                     headers: {
@@ -43,7 +50,7 @@
                     }
                 })
                 .then(response => {
-                    if (!response.ok) {w
+                    if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
                     const contentType = response.headers.get('content-type');
@@ -54,7 +61,9 @@
                     }
                 })
                 .then(categories => {
-                    CategoryList.innerHTML = ''; // Clear previous list items
+                    // Alte Kategorien löschen
+                    CategoryList.innerHTML = '';
+                    // Neue Kategorien hinzufügen
                     categories.forEach(category => {
                         const li = document.createElement('li');
                         li.className = 'flex justify-between items-center border-b py-2';
@@ -78,6 +87,7 @@
                 });
             };
 
+            // Ereignis-Listener für den Button "Neue Kategorie erstellen"
             document.getElementById('createCategoryButton').addEventListener('click', () => {
                 fetch('/api/categories', {
                     method: 'POST',
@@ -86,7 +96,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        name: 'New Category', // Example data
+                        name: 'New Category', // Beispiel-Daten
                     })
                 })
                 .then(response => {
@@ -96,13 +106,14 @@
                     return response.json();
                 })
                 .then(() => {
-                    fetchCategory(); // Refresh product list after creating a new product
+                    fetchCategory(); // Kategorienliste nach dem Erstellen einer neuen Kategorie aktualisieren
                 })
                 .catch(error => {
                     console.error('Error creating category:', error);
                 });
             });
 
+            // Funktion zum Löschen einer Kategorie
             window.deleteCategory = (categoriesid) => {
                 fetch(`/api/categories/${categoriesid}`, {
                     method: 'DELETE',
@@ -114,13 +125,15 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    fetchCategory(); // Refresh product list after deleting a product
+                    fetchCategory(); // Kategorienliste nach dem Löschen einer Kategorie aktualisieren
                 })
                 .catch(error => {
                     console.error('Error deleting category:', error);
                 });
             };
-            fetchCategory(); // Initial fetch to load products on page load
+
+            // Initiale Abruf der Kategorien beim Laden der Seite
+            fetchCategory();
         });
     </script>
 </body>

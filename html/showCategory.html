@@ -10,7 +10,7 @@
     <div class="container mx-auto mt-10">
         <h1 class="text-2xl font-bold mb-4">Category Details</h1>
         <div id="categoryDetails" class="bg-white shadow-md rounded p-4">
-            <!-- Product details will be injected here -->
+            <!-- Kategorieinformationen werden hier eingefügt -->
         </div>
         <button onclick="location.href='/categories'" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Back to Categories
@@ -18,14 +18,18 @@
     </div>
     <script type="application/javascript">
         document.addEventListener('DOMContentLoaded', () => {
+            // Extrahiere die Kategorie-ID aus der URL
             const categoryId = window.location.pathname.split('/').slice(-2)[0];
+            // Hole das Token aus dem lokalen Speicher
             const token = localStorage.getItem('token');
-
+            
+            // Wenn kein Token vorhanden ist, leite zur Startseite weiter
             if (!token) {
                 window.location.href = '/';
                 return;
             }
 
+            // Hole die Kategorieinformationen vom Server
             fetch(`/api/categories/${categoryId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -35,6 +39,7 @@
             .then(category => {
                 if (category && category.id && category.name) {
                     const categoryDetails = document.getElementById('categoryDetails');
+                    // Füge die Kategorieinformationen in das HTML-Dokument ein
                     categoryDetails.innerHTML = `
                         <p><strong>ID:</strong> ${category.id}</p>
                         <p><strong>Name:</strong> ${category.name}</p>

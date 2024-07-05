@@ -7,7 +7,8 @@ const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
-//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT 
+// Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
+// https://github.com/BitSparkCode/Simple-JWT-Auth
 
 const app = express();
 app.use(express.json());
@@ -54,13 +55,17 @@ function authorizeAdmin(req, res, next) {
 // Create - Create a product
 app.post('/api/products', authenticateToken, authorizeAdmin, (req, res) => {
     const { name, price, categoryId, image } = req.body;
-    db.run("INSERT INTO products (name, price, categoryId, image) VALUES (?, ?, ?, ?)", [name, price, categoryId, image], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+    db.run(
+        "INSERT INTO products (name, price, categoryId, image) VALUES (?, ?, ?, ?)", 
+        [name, price, categoryId, image], 
+        function (err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.status(201).json({ id: this.lastID, name, price, categoryId, image });
         }
-        res.status(201).json({ id: this.lastID, name, price, categoryId, image });
-    });
+    );
 });
 
 // Read - Get all products
@@ -94,14 +99,18 @@ app.put('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) => {
     console.log('Updating product:', id);
     console.log('Received data:', { name, price, categoryId, image });
 
-    db.run("UPDATE products SET name = ?, price = ?, categoryId = ?, image = ? WHERE id = ?", [name, price, categoryId, image, id], function (err) {
-        if (err) {
-            console.error('Error updating product:', err.message);
-            res.status(500).json({ error: err.message });
-            return;
+    db.run(
+        "UPDATE products SET name = ?, price = ?, categoryId = ?, image = ? WHERE id = ?", 
+        [name, price, categoryId, image, id], 
+        function (err) {
+            if (err) {
+                console.error('Error updating product:', err.message);
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ id, name, price, categoryId, image });
         }
-        res.json({ id, name, price, categoryId, image });
-    });
+    );
 });
 
 // Delete - Delete a product
@@ -120,13 +129,17 @@ app.delete('/api/products/:id', authenticateToken, authorizeAdmin, (req, res) =>
 // Create - Create a category
 app.post('/api/categories', authenticateToken, authorizeAdmin, (req, res) => {
     const { name } = req.body;
-    db.run("INSERT INTO categories (name) VALUES (?)", [name], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+    db.run(
+        "INSERT INTO categories (name) VALUES (?)", 
+        [name], 
+        function (err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.status(201).json({ id: this.lastID, name });
         }
-        res.status(201).json({ id: this.lastID, name });
-    });
+    );
 });
 
 // Read - Get all categories
@@ -160,14 +173,18 @@ app.put('/api/categories/:id', authenticateToken, authorizeAdmin, (req, res) => 
     console.log('Updating category:', id);
     console.log('Received data:', { name });
 
-    db.run("UPDATE categories SET name = ? WHERE id = ?", [name, id], function (err) {
-        if (err) {
-            console.error('Error updating category:', err.message);
-            res.status(500).json({ error: err.message });
-            return;
+    db.run(
+        "UPDATE categories SET name = ? WHERE id = ?", 
+        [name, id], 
+        function (err) {
+            if (err) {
+                console.error('Error updating category:', err.message);
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ id, name });
         }
-        res.json({ id, name });
-    });
+    );
 });
 
 // Delete - Delete a category
@@ -204,13 +221,17 @@ app.post('/login', (req, res) => {
 app.post('/registration', (req, res) => {
     const { username, password, role = 'user' } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 10);
-    db.run("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [username, hashedPassword, role], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+    db.run(
+        "INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
+        [username, hashedPassword, role], 
+        function (err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.status(201).json({ id: this.lastID, username, role });
         }
-        res.status(201).json({ id: this.lastID, username, role });
-    });
+    );
 });
 
 // Serve all Pages

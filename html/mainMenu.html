@@ -6,15 +6,13 @@
     <title>Product Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script>
+        // Holen des Tokens aus dem lokalen Speicher
         const token = localStorage.getItem('token');
 
+        // Funktion zum Abmelden des Benutzers
         function logout() {
             localStorage.removeItem('token');
             window.location.href = '/';
-        }
-
-        function category() {
-            window.location.href = ''
         }
     </script>
 </head>
@@ -22,21 +20,28 @@
     <nav class="bg-gray-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-white text-xl font-bold">Texo</h1>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded" onclick="logout()">Logout</button>
-            <a href="/categories" class="bg-blue-500 text-white px-4 py-2 rounded">Category Manager</a>
-            <button id="createProductButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Product</button>
+            <div>
+                <!-- Abmeldebutton -->
+                <button class="bg-blue-500 text-white px-4 py-2 rounded mr-2" onclick="logout()">Logout</button>
+                <!-- Link zum Category Manager -->
+                <a href="/categories" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Category Manager</a>
+                <!-- Button zum Erstellen eines neuen Produkts -->
+                <button id="createProductButton" class="bg-blue-500 text-white px-4 py-2 rounded">Create New Product</button>
+            </div>
         </div>
     </nav>
     <div class="container mx-auto mt-10">
-        <ul id="ProductList" class="bg-white shadow-md rounded p-4">
-            <!-- Product items will be added here dynamically -->
+        <ul id="productList" class="bg-white shadow-md rounded p-4">
+            <!-- Produktliste wird hier dynamisch eingefügt -->
         </ul>
     </div>
 
     <script type="application/javascript">
+        // Wenn die Seite geladen ist
         document.addEventListener('DOMContentLoaded', () => {
-            const ProductList = document.getElementById('ProductList');
-//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
+            const productList = document.getElementById('productList');
+
+            // Funktion zum Abrufen der Produkte
             const fetchProducts = () => {
                 fetch('/api/products', {
                     headers: {
@@ -44,7 +49,7 @@
                     }
                 })
                 .then(response => {
-                    if (!response.ok) {w
+                    if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
                     const contentType = response.headers.get('content-type');
@@ -55,7 +60,7 @@
                     }
                 })
                 .then(products => {
-                    ProductList.innerHTML = ''; // Clear previous list items
+                    productList.innerHTML = ''; // Lösche alte Listenelemente
                     products.forEach(product => {
                         const li = document.createElement('li');
                         li.className = 'flex justify-between items-center border-b py-2';
@@ -70,15 +75,16 @@
                                 <button class="bg-red-500 text-white px-4 py-2 rounded ml-2" onclick="deleteProduct(${product.id})">Delete</button>
                             </div>
                         `;
-                        ProductList.appendChild(li);
+                        productList.appendChild(li);
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching products:', error);
-                    ProductList.innerHTML = '<p>Error fetching products. Please try again later.</p>';
+                    productList.innerHTML = '<p>Error fetching products. Please try again later.</p>';
                 });
             };
 
+            // Event-Listener für den Button zum Erstellen eines neuen Produkts
             document.getElementById('createProductButton').addEventListener('click', () => {
                 fetch('/api/products', {
                     method: 'POST',
@@ -87,7 +93,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        name: 'New Product', // Example data
+                        name: 'New Product', // Beispiel-Daten
                         price: 0,
                         categoryId: 1,
                         image: ''
@@ -100,13 +106,14 @@
                     return response.json();
                 })
                 .then(() => {
-                    fetchProducts(); // Refresh product list after creating a new product
+                    fetchProducts(); // Produktliste nach dem Erstellen eines neuen Produkts aktualisieren
                 })
                 .catch(error => {
                     console.error('Error creating product:', error);
                 });
             });
 
+            // Funktion zum Löschen eines Produkts
             window.deleteProduct = (productId) => {
                 fetch(`/api/products/${productId}`, {
                     method: 'DELETE',
@@ -118,14 +125,14 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                    fetchProducts(); // Refresh product list after deleting a product
+                    fetchProducts(); // Produktliste nach dem Löschen eines Produkts aktualisieren
                 })
                 .catch(error => {
                     console.error('Error deleting product:', error);
                 });
             };
 
-            fetchProducts(); // Initial fetch to load products on page load
+            fetchProducts(); // Initiales Abrufen der Produkte beim Laden der Seite
         });
     </script>
 </body>

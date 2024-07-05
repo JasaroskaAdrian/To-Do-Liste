@@ -10,7 +10,7 @@
     <div class="container mx-auto mt-10">
         <h1 class="text-2xl font-bold mb-4">Product Details</h1>
         <div id="productDetails" class="bg-white shadow-md rounded p-4">
-            <!-- Product details will be injected here -->
+            <!-- Produktdetails werden hier eingefügt -->
         </div>
         <button onclick="location.href='/products'" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Back to Products
@@ -18,14 +18,18 @@
     </div>
     <script type="application/javascript">
         document.addEventListener('DOMContentLoaded', () => {
+            // Extrahiere die Produkt-ID aus der URL
             const productId = window.location.pathname.split('/').slice(-2)[0];
+            // Hole das Token aus dem lokalen Speicher
             const token = localStorage.getItem('token');
-//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
+            
+            // Wenn kein Token vorhanden ist, leite zur Startseite weiter
             if (!token) {
                 window.location.href = '/';
                 return;
             }
 
+            // Hole die Produktinformationen vom Server
             fetch(`/api/products/${productId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -34,6 +38,7 @@
             .then(response => response.json())
             .then(product => {
                 if (product) {
+                    // Hole die Kategorieinformationen des Produkts vom Server
                     fetch(`/api/categories/${product.categoryId}`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -43,6 +48,7 @@
                     .then(category => {
                         const categoryName = category && category.name ? category.name : 'Category not found';
                         const productDetails = document.getElementById('productDetails');
+                        // Füge die Produktdetails in das HTML-Dokument ein
                         productDetails.innerHTML = `
                             <p><strong>ID:</strong> ${product.id}</p>
                             <p><strong>Name:</strong> ${product.name}</p>

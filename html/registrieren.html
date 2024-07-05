@@ -9,51 +9,58 @@
 <body class="bg-gray-100">
     <div class="container mx-auto mt-10">
         <h1 class="text-xl font-bold mb-4">Register</h1>
+        <!-- Registrierungsformular -->
         <form id="registrationForm">
             <div class="mb-4">
+                <!-- Eingabefeld für den Benutzernamen -->
                 <label class="block text-gray-700">Username</label>
-                <input type="text" id="username" class="border rounded w-full py-2 px-3">
+                <input type="text" id="username" class="border rounded w-full py-2 px-3" required>
             </div>
             <div class="mb-4">
+                <!-- Eingabefeld für das Passwort -->
                 <label class="block text-gray-700">Password</label>
-                <input type="password" id="password" class="border rounded w-full py-2 px-3">
+                <input type="password" id="password" class="border rounded w-full py-2 px-3" required>
             </div>
             <div class="mb-4">
+                <!-- Dropdown für die Auswahl der Rolle -->
                 <label class="block text-gray-700">Role</label>
                 <select id="role" class="border rounded w-full py-2 px-3">
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                 </select>
             </div>
+            <!-- Registrierungsbutton -->
             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Register</button>
         </form>
     </div>
     <script>
+        // Event-Listener für die Formularübermittlung
         document.getElementById('registrationForm').addEventListener('submit', (event) => {
-            event.preventDefault();
+            event.preventDefault(); // Verhindert die Standard-Formularübermittlung
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const role = document.getElementById('role').value;
-//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT
+
+            // Senden der Registrierungsdaten an den Server
             fetch('/registration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password, role })
+                body: JSON.stringify({ username, password, role }) // Umwandeln der Daten in JSON-Format
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`); // Fehlerbehandlung für HTTP-Fehler
                 }
-                return response.json();
+                return response.json(); // Umwandeln der Antwort in JSON
             })
             .then(data => {
-                alert('Registration successful!');
-                window.location.href = '/';
+                alert('Registration successful!'); // Erfolgreiche Registrierungsmeldung
+                window.location.href = '/'; // Weiterleitung zur Startseite
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error:', error); // Fehlerprotokollierung
             });
         });
     </script>
