@@ -7,6 +7,8 @@ const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
 
+//Code kommt ursprünglich vom Herrn Maier, die wurden nur angepasst mithilfe von ChatGPT 
+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../html')));

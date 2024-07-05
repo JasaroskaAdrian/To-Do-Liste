@@ -18,47 +18,35 @@
     </div>
     <script type="application/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-    const productId = window.location.pathname.split('/').slice(-2)[0];
-    const token = localStorage.getItem('token');
+            const categoryId = window.location.pathname.split('/').slice(-2)[0];
+            const token = localStorage.getItem('token');
 
-    if (!token) {
-        window.location.href = '/';
-        return;
-    }
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
 
-    fetch(`/api/categories/${categoryId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => response.json())
-    .then(category => {
-        if (category) {
-            fetch(`/api/categories/${category.categoryId}`, {
+            fetch(`/api/categories/${categoryId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             })
             .then(response => response.json())
             .then(category => {
-                const categoryDetails = document.getElementById('categoryDetails');
-                categoryDetails.innerHTML = `
-                    <p><strong>ID:</strong> ${category.id}</p>
-                    <p><strong>Name:</strong> ${category.name}</p>
-                `;
+                if (category && category.id && category.name) {
+                    const categoryDetails = document.getElementById('categoryDetails');
+                    categoryDetails.innerHTML = `
+                        <p><strong>ID:</strong> ${category.id}</p>
+                        <p><strong>Name:</strong> ${category.name}</p>
+                    `;
+                } else {
+                    alert('Category not found or data is incomplete');
+                }
             })
             .catch(error => {
                 console.error('Error fetching category:', error);
             });
-        } else {
-            alert('Category not found');
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching category:', error);
-    });
-});
-
+        });
     </script>
 </body>
 </html>
