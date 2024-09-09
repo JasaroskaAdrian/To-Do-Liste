@@ -1,4 +1,4 @@
-# Online Shop API
+# API
 
 Filebasierte SQLite Datenbank
 Node.JS Backend
